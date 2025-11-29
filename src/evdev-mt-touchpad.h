@@ -171,6 +171,13 @@ enum tp_gesture_state {
 	GESTURE_STATE_3FG_DRAG_RELEASED,
 };
 
+enum l_axis
+{
+	LOCKED_NONE,
+	LOCKED_HORIZONTAL,
+	LOCKED_VERTICAL,
+};
+
 enum tp_thumb_state {
 	THUMB_STATE_FINGER,
 	THUMB_STATE_JAILED,
@@ -371,6 +378,8 @@ struct tp_dispatch {
 
 		struct libinput_timer drag_3fg_timer;
 		uint64_t drag_3fg_release_time;
+
+		enum l_axis locked_axis;
 	} gesture;
 
 	struct {
