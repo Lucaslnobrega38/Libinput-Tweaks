@@ -1,3 +1,10 @@
+# Libinput-Tweaks 
+## Features:
+- Scroll speed conifg (via multiplier)
+- Drag options (Disabled/3fg/4fg)
+- Palm Rejection options (Disabled/Enabled)
+- Tweaked scroll parameters  
+
 # 🛠️ Build and Installation Guide (Arch Linux Focus)
 This guide details how to compile your custom libinput source code and install it onto your system, replacing the official version. 
 
