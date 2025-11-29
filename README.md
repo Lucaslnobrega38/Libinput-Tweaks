@@ -1,5 +1,5 @@
 # 🛠️ Build and Installation Guide (Arch Linux Focus)
-This guide details how to compile your custom libinput source code and install it onto your system, replacing the official version. You can also download the compiled binary directly *(see /libinput.so.10.13.0, arch-based only)*
+This guide details how to compile your custom libinput source code and install it onto your system, replacing the official version. 
 
 ## Prerequisites
 Ensure you have the necessary tools for cloning and compiling:
@@ -23,5 +23,7 @@ You must restart your session or system for the changes to take effect, as the W
 
 - By default, palm detection is disabled, but you can enable it by setting LIBINPUT_DISABLE_PALM_DETECTION=0 in your env.
 - To change scrolling speed, put LIBINPUT_SCROLL_FACTOR in your env (standard value = 1).
+- To activate drag, put LIBINPUT_DRAG_CONFIG in your env with "1"(3 fingers) or "2"(4 fingers).
+
 
 
