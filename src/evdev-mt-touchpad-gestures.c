@@ -1596,6 +1596,9 @@ tp_gesture_handle_state_scroll(struct tp_dispatch *tp, uint64_t time)
 static void
 tp_gesture_handle_state_swipe_start(struct tp_dispatch *tp, uint64_t time)
 {
+	tp->gesture.last_unaccel.x = 0;
+	tp->gesture.last_unaccel.y = 0;
+	
 
 	struct device_float_coords raw;
 	struct normalized_coords delta;
@@ -1607,7 +1610,7 @@ tp_gesture_handle_state_swipe_start(struct tp_dispatch *tp, uint64_t time)
 	{
 		const struct normalized_coords zero = { 0.0, 0.0 };
 
-		if (fabs(delta.x) > fabs(delta.y)) tp->gesture.locked_axis = LOCKED_HORIZONTAL;
+		if (fabs(raw.x) > fabs(raw.y)) tp->gesture.locked_axis = LOCKED_HORIZONTAL;
 		else tp->gesture.locked_axis = LOCKED_VERTICAL;
 
 		gesture_notify_swipe(&tp->device->base,
@@ -1623,27 +1626,31 @@ tp_gesture_handle_state_swipe_start(struct tp_dispatch *tp, uint64_t time)
 static void
 tp_gesture_handle_state_swipe(struct tp_dispatch *tp, uint64_t time)
 {
-	
 	struct device_float_coords raw;
-	struct normalized_coords delta, unaccel;
+	struct normalized_coords unaccel,delta;	
 
 	raw = tp_get_average_touches_delta(tp);
 	delta = tp_filter_motion(tp, &raw, time);
 
-	if (!normalized_is_zero(delta) || !device_float_is_zero(raw)) {
+	if (!normalized_is_zero(delta) || !device_float_is_zero(raw)) 
+	{
 		unaccel = tp_filter_motion_unaccelerated(tp, &raw, time);
 
 		if (tp->gesture.locked_axis == LOCKED_HORIZONTAL)
-		{
-			unaccel.y = 0;
-			delta.y = 0;
-		}
-		else if (tp->gesture.locked_axis == LOCKED_VERTICAL)
-		{
-			unaccel.x = 0;
-			delta.x = 0;
-		}
+        {
+            unaccel.y = 0;
 
+			unaccel.x = tp->gesture.last_unaccel.x + ((unaccel.x - tp->gesture.last_unaccel.x) / 3);			
+        }
+        else if (tp->gesture.locked_axis == LOCKED_VERTICAL)
+        {
+            unaccel.x = 0;
+
+			unaccel.y = tp->gesture.last_unaccel.y + ((unaccel.y - tp->gesture.last_unaccel.y) / 3);			
+			
+        }
+
+		tp->gesture.last_unaccel = unaccel;
 		gesture_notify_swipe(&tp->device->base,
 				     time,
 				     LIBINPUT_EVENT_GESTURE_SWIPE_UPDATE,

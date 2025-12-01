@@ -380,6 +380,7 @@ struct tp_dispatch {
 		uint64_t drag_3fg_release_time;
 
 		enum l_axis locked_axis;
+		struct normalized_coords last_unaccel;
 	} gesture;
 
 	struct {
