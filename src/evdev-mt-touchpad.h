@@ -381,6 +381,7 @@ struct tp_dispatch {
 
 		enum l_axis locked_axis;
 		struct normalized_coords last_unaccel;
+		double swipe_progress;
 	} gesture;
 
 	struct {
