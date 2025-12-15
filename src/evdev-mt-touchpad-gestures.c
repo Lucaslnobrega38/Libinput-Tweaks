@@ -1593,14 +1593,6 @@ tp_gesture_handle_state_scroll(struct tp_dispatch *tp, uint64_t time)
 			  &delta);
 }
 
-static inline double ease_in_out_quad(double t)
-{
-    if (t < 0.5)
-        return 2 * t * t;
-    return -1 + (4 - 2 * t) * t;
-}
-
-
 static void
 tp_gesture_handle_state_swipe_start(struct tp_dispatch *tp, uint64_t time)
 {
@@ -1616,8 +1608,6 @@ tp_gesture_handle_state_swipe_start(struct tp_dispatch *tp, uint64_t time)
 
 	if (!normalized_is_zero(delta) || !device_float_is_zero(raw)) 
 	{
-		tp->gesture.swipe_progress = 0.0;
-
 		const struct normalized_coords zero = { 0.0, 0.0 };
 
 		if (fabs(raw.x) > fabs(raw.y)) tp->gesture.locked_axis = LOCKED_HORIZONTAL;
@@ -1644,33 +1634,26 @@ tp_gesture_handle_state_swipe(struct tp_dispatch *tp, uint64_t time)
 
 	if (!normalized_is_zero(delta) || !device_float_is_zero(raw)) 
 	{
-		double t = tp->gesture.swipe_progress;
 		unaccel = tp_filter_motion_unaccelerated(tp, &raw, time);
-		double e = ease_in_out_quad(t);      // 0 → 1 → 0
-		double k = 0.7 + 0.7* e;
-
-
 		if (tp->gesture.locked_axis == LOCKED_HORIZONTAL)
         {
             unaccel.y = 0;
 
 
-			unaccel.x = tp->gesture.last_unaccel.x +
-            (unaccel.x - tp->gesture.last_unaccel.x) * k;
+			if (unaccel.x > tp->gesture.last_unaccel.x) unaccel.x = tp->gesture.last_unaccel.x +1;
+
+			if (unaccel.x < tp->gesture.last_unaccel.x) unaccel.x = tp->gesture.last_unaccel.x -1;
         }
         else if (tp->gesture.locked_axis == LOCKED_VERTICAL)
         {
             unaccel.x = 0;
 
 
-			unaccel.y = tp->gesture.last_unaccel.y +
-            (unaccel.y - tp->gesture.last_unaccel.y) * k;
+			if (unaccel.y > tp->gesture.last_unaccel.y) unaccel.y = tp->gesture.last_unaccel.y +1;
+
+			if (unaccel.y < tp->gesture.last_unaccel.y) unaccel.y = tp->gesture.last_unaccel.y -1;
 			
         }
-
-		tp->gesture.swipe_progress += 0.02;
-		if (tp->gesture.swipe_progress > 1.0)
-			tp->gesture.swipe_progress = 1.0;
 
 		tp->gesture.last_unaccel = unaccel;
 		gesture_notify_swipe(&tp->device->base,
